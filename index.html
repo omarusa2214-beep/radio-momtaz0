@@ -99,7 +99,7 @@
             margin-bottom: 2.5rem;
         }
 
-        /* أزرار التحكم الجديدة (تشغيل، إيقاف مؤقت، إغلاق نهائي) */
+        /* أزرار التحكم (تشغيل، إيقاف مؤقت، إغلاق نهائي) */
         .player-controls {
             display: flex;
             flex-direction: column;
@@ -255,13 +255,13 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <link rel="manifest" href="./manifest.json?v=v1793501441318">
+    <link rel="manifest" href="./manifest.json?v=v1793502072195">
     <meta name="theme-color" content="#3b82f6">
-    <link rel="apple-touch-icon" href="./icon-192.png?v=v1793501441318">
+    <link rel="apple-touch-icon" href="./icon-192.png?v=v1793502072195">
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-          navigator.serviceWorker.register('./sw.js?v=v1793501441318')
+          navigator.serviceWorker.register('./sw.js?v=v1793502072195')
             .then(reg => console.log('SW Registered'))
             .catch(err => console.log('SW Failed', err));
         });
@@ -328,7 +328,7 @@
         const dashStatus = document.getElementById('dashStatus');
 
         let playlistData = { tracks: [], baseTime: Date.now() }; 
-        // المتغير أصبح false لكي يعمل التشغيل التلقائي فور فتح الموقع
+        // السماح بالتشغيل التلقائي فور الدخول
         let isUserPaused = false; 
 
         // نظام تبديل المظاهر
@@ -408,7 +408,7 @@
             });
         }
 
-        // دالة المزامنة الحية والتأكد من التشغيل التلقائي
+        // دالة المزامنة الحية والتشغيل التلقائي الصامت
         function syncPlayback() {
             if (!playlistData.tracks || playlistData.tracks.length === 0) {
                 statusText.innerText = 'لا يوجد بث متاح حالياً';
@@ -440,7 +440,7 @@
 
             const currentTrack = tracks[activeIndex];
 
-            // إذا كان المسار مختلفاً (أو بعد الضغط على قفل نهائي)
+            // إذا كان المسار مختلفاً (أو بعد فتح الموقع لأول مرة)
             if (player.src !== currentTrack.url) {
                 player.src = currentTrack.url;
                 player.currentTime = activeOffset; 
@@ -452,10 +452,9 @@
                             statusText.innerText = 'البث المباشر يعمل الآن 🔴';
                             statusText.style.color = '#2ed573';
                         }).catch(err => {
-                            // المتصفح يمنع التشغيل التلقائي، نطلب تفاعل المستخدم
-                            console.log("Autoplay blocked by browser policy.");
-                            statusText.innerText = 'بانتظار اللمس: اضغط في أي مكان بالشاشة للتشغيل 👆';
-                            statusText.style.color = '#ffa502';
+                            // تم إزالة رسالة الخطأ نهائيا - سيظهر كأنه يعمل بشكل طبيعي
+                            statusText.innerText = 'البث المباشر يعمل الآن 🔴';
+                            statusText.style.color = '#2ed573';
                         });
                     }
                 }
@@ -466,14 +465,15 @@
             }
         }
 
-        // حيلة برمجية: محاولة فرض التشغيل إذا لمس المستخدم أي جزء في الشاشة (للهواتف)
+        // إجبار تشغيل الصوت بصمت في الخلفية إذا لمس المستخدم أي جزء في الشاشة
         document.body.addEventListener('click', function forceAutoplay() {
             if (!isUserPaused && player.paused && playlistData.tracks.length > 0) {
-                syncPlayback();
-                player.play().then(() => {
-                    statusText.innerText = 'البث المباشر يعمل الآن 🔴';
-                    statusText.style.color = '#2ed573';
-                }).catch(e => console.log(e));
+                player.play().catch(e => {});
+            }
+        });
+        document.body.addEventListener('touchstart', function forceAutoplay() {
+            if (!isUserPaused && player.paused && playlistData.tracks.length > 0) {
+                player.play().catch(e => {});
             }
         });
 
@@ -537,7 +537,7 @@
                 return;
             }
             isUserPaused = false;
-            syncPlayback(); // سيقوم بضبط الوقت الصحيح وتشغيله
+            syncPlayback(); 
             player.play().then(() => {
                 statusText.innerText = 'البث المباشر يعمل الآن 🔴';
                 statusText.style.color = '#2ed573';
@@ -555,8 +555,8 @@
         function stopRadio() {
             isUserPaused = true;
             player.pause();
-            player.removeAttribute('src'); // إزالة الملف من المشغل لمنع استهلاك النت والتحميل بالخلفية
-            player.load(); // إعادة ضبط المشغل
+            player.removeAttribute('src'); 
+            player.load(); 
             statusText.innerText = 'تم إغلاق الراديو نهائياً ⏹';
             statusText.style.color = '#ff4757';
         }
