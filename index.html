@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>راديو ممتاز 📻</title>
+    <style>
+        /* الوضع الأساسي (الدارك مود) */
+        :root {
+            --primary: #ff4757;
+            --bg: #1e272e;
+            --text: #f1f2f6;
+            --panel: #2f3542;
+            --btn-text: #ffffff;
+        }
+
+        /* المود الثاني (الفاتح - Light Mode) */
+        [data-theme="light"] {
+            --primary: #e84118;
+            --bg: #f5f6fa;
+            --text: #2f3542;
+            --panel: #ffffff;
+            --btn-text: #ffffff;
+        }
+
+        /* المود الثالث (المحيط الأزرق - Ocean Mode) */
+        [data-theme="ocean"] {
+            --primary: #00cec9;
+            --bg: #0984e3;
+            --text: #ffffff;
+            --panel: #74b9ff;
+            --btn-text: #2d3436;
+        }
+
+        /* المود الرابع (السايبر بانك / نيون - Cyberpunk) */
+        [data-theme="cyber"] {
+            --primary: #ff00ff;
+            --bg: #000000;
+            --text: #00ff00;
+            --panel: #111111;
+            --btn-text: #ffffff;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            text-align: center;
+            transition: background-color 0.4s, color 0.4s;
+        }
+
+        .container {
+            background-color: var(--panel);
+            padding: 3rem 2rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            width: 90%;
+            max-width: 450px;
+            position: relative;
+            transition: background-color 0.4s;
+        }
+
+        /* زر تبديل المظاهر (الثيمات) */
+        .theme-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: var(--primary);
+            color: var(--btn-text);
+            border: none;
+            padding: 10px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            transition: transform 0.2s;
+            z-index: 5;
+        }
+        .theme-btn:hover {
+            transform: scale(1.05);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+            transition: color 0.4s;
+        }
+        p.subtitle {
+            font-size: 1.1rem;
+            opacity: 0.8;
+            margin-bottom: 2.5rem;
+        }
+
+        /* أزرار التحكم الجديدة (تشغيل، إيقاف مؤقت، إغلاق نهائي) */
+        .player-controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+        }
+        .controls-row {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            align-items: center;
+        }
+        .ctrl-btn {
+            border: none;
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s, filter 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        /* تمييز الأزرار بالألوان */
+        #btnPlay { background-color: #2ed573; width: 75px; height: 75px; font-size: 2rem; }
+        #btnPause { background-color: #ffa502; }
+        #btnStop { background-color: #ff4757; }
+
+        .ctrl-btn:hover { filter: brightness(1.1); transform: scale(1.08); }
+        .ctrl-btn:active { transform: scale(0.95); }
+
+        .status {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        
+        /* تصميم لوحة التحكم المخفية */
+        #dashboard {
+            display: none;
+            margin-top: 2.5rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(128, 128, 128, 0.3);
+            text-align: right;
+            animation: fadeIn 0.5s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .dashboard-title {
+            color: var(--primary);
+            font-size: 1.4rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-weight: bold;
+        }
+        input[type="file"] {
+            display: block;
+            width: 90%;
+            margin: 0 auto 1.5rem auto;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 12px;
+            border-radius: 8px;
+            color: var(--text);
+            cursor: pointer;
+            border: 1px solid rgba(128,128,128,0.5);
+        }
+        button.upload-btn {
+            background-color: var(--primary);
+            color: var(--btn-text);
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            width: 100%;
+            font-weight: bold;
+            transition: filter 0.2s;
+        }
+        button.upload-btn:hover {
+            filter: brightness(1.1);
+        }
+        #dashStatus {
+            margin-top: 15px; 
+            display: none;
+            text-align: center;
+            font-weight: bold;
+            line-height: 1.6;
+        }
+
+        /* ستايل قائمة الملفات المرفوعة */
+        #fileListContainer {
+            margin-top: 20px;
+            display: none;
+            text-align: right;
+        }
+        .file-list {
+            max-height: 220px;
+            overflow-y: auto;
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
+            padding: 10px;
+            border: 1px solid rgba(128, 128, 128, 0.3);
+        }
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 5px;
+            border-bottom: 1px solid rgba(128,128,128,0.2);
+        }
+        .file-item:last-child {
+            border-bottom: none;
+        }
+        .file-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            padding-left: 10px;
+        }
+        .file-name {
+            font-weight: bold;
+            color: var(--primary);
+            word-break: break-word;
+            font-size: 0.95rem;
+        }
+        .file-meta {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+        .delete-btn {
+            background-color: #ff4757;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+        .delete-btn:hover {
+            background-color: #ff6b81;
+        }
+        .file-list::-webkit-scrollbar { width: 6px; }
+        .file-list::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
+    </style>
+
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <link rel="manifest" href="./manifest.json?v=v1793501441318">
+    <meta name="theme-color" content="#3b82f6">
+    <link rel="apple-touch-icon" href="./icon-192.png?v=v1793501441318">
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('./sw.js?v=v1793501441318')
+            .then(reg => console.log('SW Registered'))
+            .catch(err => console.log('SW Failed', err));
+        });
+      }
+    </script>
+</head>
+<body>
+
+    <!-- زر تبديل المظاهر -->
+    <button class="theme-btn" onclick="switchTheme()">تبديل المظهر 🎨</button>
+
+    <div class="container">
+        
+        <h1>راديو ممتاز 📻</h1>
+        <p class="subtitle">بث مباشر على مدار الساعة 24/7</p>
+
+        <div class="player-controls">
+            <!-- أزرار التحكم الثلاثة -->
+            <div class="controls-row">
+                <button class="ctrl-btn" id="btnPause" onclick="pauseRadio()" title="إيقاف مؤقت">⏸</button>
+                <button class="ctrl-btn" id="btnPlay" onclick="playRadio()" title="تشغيل / استكمال">▶</button>
+                <button class="ctrl-btn" id="btnStop" onclick="stopRadio()" title="قفل نهائي وإلغاء التحميل">⏹</button>
+            </div>
+            <div class="status" id="statusText">جاري الاتصال بسيرفر Supabase...</div>
+        </div>
+
+        <!-- مشغل الصوت مع خاصية Autoplay -->
+        <audio id="radioPlayer" crossorigin="anonymous" autoplay>
+            متصفحك لا يدعم تشغيل الصوت.
+        </audio>
+
+        <!-- لوحة التحكم المخفية للآدمن -->
+        <div id="dashboard">
+            <div class="dashboard-title">⚙️ لوحة تحكم الإدارة</div>
+            
+            <label style="display: block; margin-bottom: 10px; opacity: 0.8; text-align: center;">إضافة مقاطع جديدة لقائمة البث:</label>
+            <input type="file" id="audioUpload" accept="audio/*" multiple>
+            <button class="upload-btn" onclick="uploadToSupabase()">رفع وبث الملفات الآن 🚀</button>
+            <p id="dashStatus"></p>
+
+            <!-- قائمة الملفات المعروضة لمدير الموقع -->
+            <div id="fileListContainer">
+                <h3 style="color: #eccc68; font-size: 1.1rem; margin-bottom: 10px; text-align: center;">📂 الملفات المرفوعة وقائمة البث:</h3>
+                <div id="fileList" class="file-list">
+                    <!-- سيتم إضافة الملفات هنا تلقائياً -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- استدعاء مكتبة Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script>
+        // إعدادات سيرفر Supabase الخاص بك
+        const supabaseUrl = 'https://smnpkmlqbihoyebwbtqj.supabase.co';
+        const supabaseKey = 'sb_publishable_P3-KB6jY-RAqwDx2106oYQ_pLGVSC8V';
+        const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+        const player = document.getElementById('radioPlayer');
+        const statusText = document.getElementById('statusText');
+        const dashboard = document.getElementById('dashboard');
+        const audioUpload = document.getElementById('audioUpload');
+        const dashStatus = document.getElementById('dashStatus');
+
+        let playlistData = { tracks: [], baseTime: Date.now() }; 
+        // المتغير أصبح false لكي يعمل التشغيل التلقائي فور فتح الموقع
+        let isUserPaused = false; 
+
+        // نظام تبديل المظاهر
+        const themes = ['dark', 'light', 'ocean', 'cyber'];
+        let currentThemeIndex = 0; 
+        function switchTheme() {
+            currentThemeIndex = (currentThemeIndex + 1) % themes.length;
+            const selectedTheme = themes[currentThemeIndex];
+            if(selectedTheme === 'dark') {
+                document.documentElement.removeAttribute('data-theme');
+            } else {
+                document.documentElement.setAttribute('data-theme', selectedTheme);
+            }
+        }
+
+        function formatSize(bytes) {
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+        }
+
+        function formatTime(sec) {
+            const m = Math.floor(sec / 60);
+            const s = Math.floor(sec % 60);
+            return m + ':' + (s < 10 ? '0' : '') + s;
+        }
+
+        const getDuration = (file) => {
+            return new Promise((resolve) => {
+                const audioObj = document.createElement('audio');
+                const url = URL.createObjectURL(file);
+                audioObj.onloadedmetadata = () => {
+                    resolve(audioObj.duration);
+                    URL.revokeObjectURL(url);
+                };
+                audioObj.onerror = () => {
+                    resolve(1); 
+                    URL.revokeObjectURL(url);
+                };
+                audioObj.src = url;
+            });
+        };
+
+        function getRecalculatedBaseTime(oldTracks) {
+            if (!oldTracks || oldTracks.length === 0) return Date.now();
+            const oldTotalDuration = oldTracks.reduce((acc, t) => acc + t.duration, 0);
+            if (oldTotalDuration === 0) return Date.now();
+            const elapsedSec = (Date.now() - playlistData.baseTime) / 1000;
+            const currentPos = elapsedSec % oldTotalDuration;
+            return Date.now() - Math.floor(currentPos * 1000);
+        }
+
+        function renderFileList() {
+            const container = document.getElementById('fileListContainer');
+            const list = document.getElementById('fileList');
+            if (!playlistData.tracks || playlistData.tracks.length === 0) {
+                container.style.display = 'none';
+                return;
+            }
+            container.style.display = 'block';
+            list.innerHTML = '';
+            playlistData.tracks.forEach((track, index) => {
+                const item = document.createElement('div');
+                item.className = 'file-item';
+                const info = document.createElement('div');
+                info.className = 'file-info';
+                info.innerHTML = `
+                    <span class="file-name">${track.name}</span>
+                    <span class="file-meta">⏳ المدة: ${formatTime(track.duration)} | 💾 الحجم: ${formatSize(track.size)}</span>
+                `;
+                const delBtn = document.createElement('button');
+                delBtn.className = 'delete-btn';
+                delBtn.innerHTML = '🗑️ حذف';
+                delBtn.onclick = () => deleteTrack(index);
+                item.appendChild(info);
+                item.appendChild(delBtn);
+                list.appendChild(item);
+            });
+        }
+
+        // دالة المزامنة الحية والتأكد من التشغيل التلقائي
+        function syncPlayback() {
+            if (!playlistData.tracks || playlistData.tracks.length === 0) {
+                statusText.innerText = 'لا يوجد بث متاح حالياً';
+                player.src = '';
+                return;
+            }
+
+            const tracks = playlistData.tracks;
+            let totalDuration = tracks.reduce((acc, t) => acc + t.duration, 0);
+            if (totalDuration === 0) return;
+
+            const now = Date.now();
+            const baseTime = playlistData.baseTime || now;
+            const elapsedSec = (now - baseTime) / 1000;
+            const currentGlobalPos = elapsedSec % totalDuration;
+
+            let acc = 0;
+            let activeIndex = 0;
+            let activeOffset = 0;
+
+            for (let i = 0; i < tracks.length; i++) {
+                if (currentGlobalPos >= acc && currentGlobalPos < acc + tracks[i].duration) {
+                    activeIndex = i;
+                    activeOffset = currentGlobalPos - acc;
+                    break;
+                }
+                acc += tracks[i].duration;
+            }
+
+            const currentTrack = tracks[activeIndex];
+
+            // إذا كان المسار مختلفاً (أو بعد الضغط على قفل نهائي)
+            if (player.src !== currentTrack.url) {
+                player.src = currentTrack.url;
+                player.currentTime = activeOffset; 
+                
+                if (!isUserPaused) {
+                    const playPromise = player.play();
+                    if (playPromise !== undefined) {
+                        playPromise.then(() => {
+                            statusText.innerText = 'البث المباشر يعمل الآن 🔴';
+                            statusText.style.color = '#2ed573';
+                        }).catch(err => {
+                            // المتصفح يمنع التشغيل التلقائي، نطلب تفاعل المستخدم
+                            console.log("Autoplay blocked by browser policy.");
+                            statusText.innerText = 'بانتظار اللمس: اضغط في أي مكان بالشاشة للتشغيل 👆';
+                            statusText.style.color = '#ffa502';
+                        });
+                    }
+                }
+            } else {
+                if (!isUserPaused && Math.abs(player.currentTime - activeOffset) > 3) {
+                    player.currentTime = activeOffset;
+                }
+            }
+        }
+
+        // حيلة برمجية: محاولة فرض التشغيل إذا لمس المستخدم أي جزء في الشاشة (للهواتف)
+        document.body.addEventListener('click', function forceAutoplay() {
+            if (!isUserPaused && player.paused && playlistData.tracks.length > 0) {
+                syncPlayback();
+                player.play().then(() => {
+                    statusText.innerText = 'البث المباشر يعمل الآن 🔴';
+                    statusText.style.color = '#2ed573';
+                }).catch(e => console.log(e));
+            }
+        });
+
+        function handleServerData(dbData) {
+            if (!dbData) return;
+            if (Array.isArray(dbData)) {
+                playlistData = { tracks: [], baseTime: Date.now() };
+            } else {
+                playlistData = dbData;
+            }
+            renderFileList();
+            syncPlayback();
+        }
+
+        async function fetchInitialPlaylist() {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('radio_settings')
+                    .select('playlist_urls')
+                    .eq('id', 1)
+                    .single();
+                
+                if (error) throw error;
+                if (data && data.playlist_urls) {
+                    handleServerData(data.playlist_urls);
+                } else {
+                    statusText.innerText = 'لا يوجد بث متاح حالياً';
+                }
+            } catch (err) {
+                console.error("Network Error:", err);
+                statusText.innerText = 'جاهز (بانتظار الإدارة)';
+            }
+        }
+
+        supabaseClient.channel('custom-all-channel')
+            .on(
+                'postgres_changes',
+                { event: '*', schema: 'public', table: 'radio_settings' },
+                (payload) => {
+                    if (payload.new && payload.new.playlist_urls) {
+                        handleServerData(payload.new.playlist_urls);
+                    }
+                }
+            )
+            .subscribe();
+
+        fetchInitialPlaylist();
+
+        setInterval(() => {
+            if (!isUserPaused) syncPlayback();
+        }, 5000);
+
+        player.addEventListener('ended', function() {
+            syncPlayback();
+        });
+
+        // دوال أزرار التحكم الثلاثة
+        function playRadio() {
+            if (!playlistData.tracks || playlistData.tracks.length === 0) {
+                alert('الراديو غير متاح حالياً، يرجى انتظار الإدارة لبدء البث.');
+                return;
+            }
+            isUserPaused = false;
+            syncPlayback(); // سيقوم بضبط الوقت الصحيح وتشغيله
+            player.play().then(() => {
+                statusText.innerText = 'البث المباشر يعمل الآن 🔴';
+                statusText.style.color = '#2ed573';
+            }).catch(err => console.error(err));
+        }
+
+        function pauseRadio() {
+            if(player.paused && isUserPaused) return;
+            isUserPaused = true;
+            player.pause();
+            statusText.innerText = 'تم إيقاف البث مؤقتاً ⏸';
+            statusText.style.color = '#ffa502';
+        }
+
+        function stopRadio() {
+            isUserPaused = true;
+            player.pause();
+            player.removeAttribute('src'); // إزالة الملف من المشغل لمنع استهلاك النت والتحميل بالخلفية
+            player.load(); // إعادة ضبط المشغل
+            statusText.innerText = 'تم إغلاق الراديو نهائياً ⏹';
+            statusText.style.color = '#ff4757';
+        }
+
+        async function deleteTrack(index) {
+            if (!confirm('هل أنت متأكد من حذف هذا الملف نهائياً من البث؟')) return;
+            const track = playlistData.tracks[index];
+            dashStatus.style.display = 'block';
+            dashStatus.style.color = '#eccc68';
+            dashStatus.innerText = '⏳ جاري الحذف من السيرفر...';
+            try {
+                playlistData.baseTime = getRecalculatedBaseTime(playlistData.tracks);
+                await supabaseClient.storage.from('radio_files').remove([track.path]);
+                playlistData.tracks.splice(index, 1);
+                
+                if (playlistData.tracks.length === 0) {
+                    playlistData.baseTime = Date.now();
+                }
+
+                const { error: dbError } = await supabaseClient
+                    .from('radio_settings')
+                    .upsert({ id: 1, playlist_urls: playlistData });
+
+                if (dbError) throw dbError;
+                dashStatus.style.color = '#2ed573';
+                dashStatus.innerText = '✅ تم الحذف بنجاح!';
+                setTimeout(() => dashStatus.style.display = 'none', 3000);
+            } catch (error) {
+                console.error(error);
+                dashStatus.style.color = '#ff4757';
+                dashStatus.innerText = '❌ حدث خطأ أثناء الحذف.';
+            }
+        }
+
+        async function uploadToSupabase() {
+            const files = audioUpload.files;
+            if (files.length === 0) {
+                alert('الرجاء اختيار ملف أو عدة ملفات صوتية أولاً من جهازك.');
+                return;
+            }
+            dashStatus.style.display = 'block';
+            dashStatus.style.color = '#eccc68';
+            dashStatus.innerText = `⏳ جاري التجهيز والرفع... يرجى الانتظار`;
+
+            try {
+                playlistData.baseTime = getRecalculatedBaseTime(playlistData.tracks);
+                if (!playlistData.tracks) playlistData.tracks = [];
+
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    dashStatus.innerText = `⏳ جاري رفع الملف (${i + 1} من ${files.length})... لا تغلق الصفحة`;
+                    
+                    const dur = await getDuration(file);
+                    const fileName = 'stream_' + Date.now() + '_' + i;
+                    
+                    const { error: uploadError } = await supabaseClient.storage
+                        .from('radio_files')
+                        .upload(fileName, file, { cacheControl: '3600', upsert: false });
+
+                    if (uploadError) throw uploadError;
+                    const { data: urlData } = supabaseClient.storage.from('radio_files').getPublicUrl(fileName);
+                    
+                    playlistData.tracks.push({
+                        name: file.name,
+                        size: file.size,
+                        duration: dur,
+                        url: urlData.publicUrl,
+                        path: fileName
+                    });
+                }
+
+                const { error: dbError } = await supabaseClient
+                    .from('radio_settings')
+                    .upsert({ id: 1, playlist_urls: playlistData });
+
+                if (dbError) throw dbError;
+
+                dashStatus.style.color = '#2ed573';
+                dashStatus.innerText = `✅ تم الرفع والتفعيل في البث بنجاح!`;
+                audioUpload.value = ''; 
+                
+                if (isUserPaused) playRadio();
+                setTimeout(() => dashStatus.style.display = 'none', 5000);
+            } catch (error) {
+                console.error('خطأ في الرفع:', error);
+                dashStatus.style.color = '#ff4757';
+                dashStatus.innerText = '❌ حدث خطأ! (تأكد من الاتصال).';
+            }
+        }
+
+        // الاستماع للوحة المفاتيح لفتح لوحة التحكم 
+        document.addEventListener('keydown', function(event) {
+            if (event.ctrlKey && event.shiftKey && (event.key.toLowerCase() === 'x' || event.key === 'F10')) {
+                event.preventDefault(); 
+                promptPassword();
+            }
+        });
+
+        function promptPassword() {
+            if (dashboard.style.display === 'block') {
+                dashboard.style.display = 'none';
+                return;
+            }
+            const pass = prompt('الرجاء إدخال كلمة المرور السرية للوحة التحكم:');
+            if (pass === '#ZMsd42d*') {
+                dashboard.style.display = 'block';
+                renderFileList();
+            } else if (pass !== null) {
+                alert('كلمة المرور خاطئة! غير مصرح لك بالدخول.');
+            }
+        }
+    </script>
+</body>
+</html>
